@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ABL WMS — Warehouse Management System</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0b0e1a;--card:#111827;--border:#1f2937;--accent:#6366f1;--green:#22c55e;--text:#e2e8f0;--muted:#64748b;--subtle:#1e293b}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(11,14,26,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:14px 40px;display:flex;align-items:center;justify-content:space-between}
+.nav-brand{display:flex;align-items:center;gap:10px}
+.nav-logo{width:32px;height:32px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.nav-name{font-size:15px;font-weight:700;color:#fff}.nav-name span{color:#818cf8}
+.nav-links{display:flex;gap:28px}
+.nav-links a{font-size:13px;color:var(--muted);text-decoration:none;transition:.2s}
+.nav-links a:hover{color:var(--text)}
+.nav-cta{background:var(--accent);color:#fff;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none}
+.hero{padding:140px 40px 80px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(99,102,241,.12) 0%,transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--subtle);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--muted);margin-bottom:24px}
+.live-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-size:clamp(36px,6vw,68px);font-weight:800;line-height:1.1;margin-bottom:20px}
+.grad{background:linear-gradient(135deg,#6366f1,#a855f7,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:18px;color:var(--muted);max-width:560px;margin:0 auto 36px;line-height:1.6}
+.hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-primary{background:var(--accent);color:#fff;padding:14px 28px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:.2s}
+.btn-primary:hover{background:#8b5cf6;transform:translateY(-1px)}
+.btn-secondary{background:transparent;color:var(--text);padding:14px 28px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;border:1px solid var(--border);display:inline-flex;align-items:center;gap:8px;transition:.2s}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
+.stats{display:flex;justify-content:center;gap:48px;padding:0 40px 80px;flex-wrap:wrap}
+.stat{text-align:center}
+.stat-num{font-size:36px;font-weight:800;color:#fff}.stat-num span{color:var(--accent)}
+.stat-label{font-size:12px;color:var(--muted);margin-top:4px}
+section{padding:80px 40px;max-width:1200px;margin:0 auto}
+.section-label{font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:600}
+.section-title{font-size:clamp(24px,4vw,40px);font-weight:800;margin-bottom:14px}
+.section-sub{font-size:15px;color:var(--muted);max-width:500px;line-height:1.6;margin-bottom:48px}
+.modules{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.module-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;transition:.2s;position:relative;overflow:hidden}
+.module-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.module-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0}
+.c1::before{background:linear-gradient(90deg,#6366f1,#8b5cf6)}
+.c2::before{background:linear-gradient(90deg,#3b82f6,#1d4ed8)}
+.c3::before{background:linear-gradient(90deg,#22c55e,#16a34a)}
+.c4::before{background:linear-gradient(90deg,#a855f7,#7c3aed)}
+.c5::before{background:linear-gradient(90deg,#f97316,#ea580c)}
+.c6::before{background:linear-gradient(90deg,#ef4444,#dc2626)}
+.mod-icon{font-size:28px;margin-bottom:14px}
+.mod-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:6px}
+.mod-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:14px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{background:var(--subtle);border-radius:6px;padding:3px 8px;font-size:10px;color:var(--muted);font-weight:500}
+.flow-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px;overflow-x:auto}
+.flow-steps{display:flex;align-items:center;justify-content:center;flex-wrap:wrap}
+.flow-step{text-align:center;padding:16px 24px;position:relative}
+.flow-step:not(:last-child)::after{content:'→';position:absolute;right:-8px;top:50%;transform:translateY(-50%);color:var(--border);font-size:20px}
+.fs-icon{width:52px;height:52px;border-radius:14px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:24px}
+.fi1{background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3)}
+.fi2{background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.3)}
+.fi3{background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.3)}
+.fi4{background:rgba(249,115,22,.15);border:1px solid rgba(249,115,22,.3)}
+.fi5{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3)}
+.flow-step h4{font-size:13px;font-weight:600;color:#fff;margin-bottom:2px}
+.flow-step p{font-size:11px;color:var(--muted)}
+.api-table{width:100%;border-collapse:collapse;margin-top:16px}
+.api-table th{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:10px 0;text-align:left;border-bottom:1px solid var(--border)}
+.api-table td{font-size:13px;padding:12px 0;border-bottom:1px solid var(--subtle);color:#94a3b8}
+.api-table td:first-child{color:#fff;font-family:monospace;font-size:12px}
+.api-table tr:last-child td{border-bottom:none}
+.method{display:inline-block;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;font-family:monospace;margin-right:6px}
+.get{background:#14532d;color:#86efac}.post{background:#1e3a5f;color:#93c5fd}.patch{background:#713f12;color:#fde68a}
+.agent-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:40px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
+@media(max-width:768px){.agent-card{grid-template-columns:1fr}.nav-links{display:none}}
+.agent-icon{width:64px;height:64px;background:linear-gradient(135deg,#f97316,#ea580c);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:20px}
+.agent-card h3{font-size:22px;font-weight:800;margin-bottom:12px}
+.agent-card > div > p{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:20px}
+.triggers{display:flex;flex-direction:column;gap:8px}
+.trigger{display:flex;align-items:flex-start;gap:10px;background:var(--subtle);border-radius:10px;padding:12px 14px}
+.tdot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.trigger strong{color:#e2e8f0;display:block;font-size:13px;margin-bottom:2px}
+.trigger p{font-size:12px;color:var(--muted);margin:0}
+.cta{text-align:center;padding:100px 40px;background:linear-gradient(180deg,var(--bg),#0d1020)}
+.cta h2{font-size:clamp(28px,5vw,52px);font-weight:800;margin-bottom:16px}
+.cta p{font-size:16px;color:var(--muted);margin-bottom:36px}
+footer{border-top:1px solid var(--border);padding:24px 40px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+footer p{font-size:12px;color:var(--muted)}
+.footer-links{display:flex;gap:20px}
+.footer-links a{font-size:12px;color:var(--muted);text-decoration:none}
+.footer-links a:hover{color:var(--text)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">🏭</div>
+    <div class="nav-name">ABL <span>WMS</span></div>
+  </div>
+  <div class="nav-links">
+    <a href="#modules">Modules</a>
+    <a href="#flow">Alur Kerja</a>
+    <a href="#api">API</a>
+    <a href="#agent">AI Agent</a>
+  </div>
+  <a class="nav-cta" href="#api">API Docs</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge"><span class="live-dot"></span> v1.0 · Customer: KALBE</div>
+  <h1>Warehouse Management<br><span class="grad">Real-Time & Multi-Customer</span></h1>
+  <p>Sistem manajemen gudang ABL yang terhubung langsung ke Notion — dari penerimaan barang, stok, hingga pengiriman DO, semua dalam satu platform.</p>
+  <div class="hero-actions">
+    <a class="btn-primary" href="#modules">📦 Lihat Modules</a>
+    <a class="btn-secondary" href="#api">📄 API Docs</a>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-num">6<span>+</span></div><div class="stat-label">Notion Databases</div></div>
+  <div class="stat"><div class="stat-num">12<span>+</span></div><div class="stat-label">API Endpoints</div></div>
+  <div class="stat"><div class="stat-num">1</div><div class="stat-label">AI Triage Agent</div></div>
+  <div class="stat"><div class="stat-num">100<span>%</span></div><div class="stat-label">Real-Time Sync</div></div>
+</div>
+
+<section id="modules">
+  <div class="section-label">Modules</div>
+  <div class="section-title">6 Database Terintegrasi</div>
+  <div class="section-sub">Setiap modul terhubung satu sama lain — update di satu tempat langsung tercermin di seluruh sistem.</div>
+  <div class="modules">
+    <div class="module-card c1"><div class="mod-icon">📦</div><div class="mod-title">Items</div><div class="mod-desc">Master SKU dengan hierarki KALBE → Divisi → Product → Item. Tracking UOM, konversi pack, dan status aktif.</div><div class="tags"><span class="tag">ETICAL</span><span class="tag">OTC & SAKA</span><span class="tag">Multi-product</span></div></div>
+    <div class="module-card c2"><div class="mod-icon">📍</div><div class="mod-title">Locations</div><div class="mod-desc">Rack & bin management dengan kode E02-A01, kapasitas PCS, utilisasi real-time, dan status AVAILABLE/OCCUPIED/FULL.</div><div class="tags"><span class="tag">Rack Mapping</span><span class="tag">Utilization %</span><span class="tag">Auto-status</span></div></div>
+    <div class="module-card c3"><div class="mod-icon">📥</div><div class="mod-title">Inbound GR</div><div class="mod-desc">Penerimaan barang masuk dengan workflow Pending → Received → Putaway → Done. Side effect otomatis ke Stock Movement.</div><div class="tags"><span class="tag">Auto Movement</span><span class="tag">Operator Log</span><span class="tag">Qty Tracking</span></div></div>
+    <div class="module-card c4"><div class="mod-icon">📊</div><div class="mod-title">Stock Movement</div><div class="mod-desc">Source of truth semua mutasi stok. Tipe: INBOUND, PUTAWAY, OUTBOUND, ADJUSTMENT, OPNAME.</div><div class="tags"><span class="tag">Source of Truth</span><span class="tag">5 Tipe Mutasi</span><span class="tag">Summary API</span></div></div>
+    <div class="module-card c5"><div class="mod-icon">🚚</div><div class="mod-title">Outbound DO</div><div class="mod-desc">Pipeline delivery order dari REQUEST sampai DELIVERED. Deteksi selisih picking otomatis oleh AI Triage Agent.</div><div class="tags"><span class="tag">9-stage Pipeline</span><span class="tag">AI Triage</span><span class="tag">Picking List</span></div></div>
+    <div class="module-card c6"><div class="mod-icon">🛡️</div><div class="mod-title">Audit Log</div><div class="mod-desc">Trail lengkap semua perubahan: siapa, kapan, field apa, nilai lama ke nilai baru. Supervisor dapat verifikasi tiap entry.</div><div class="tags"><span class="tag">Full Trail</span><span class="tag">Verifiable</span><span class="tag">Multi-module</span></div></div>
+  </div>
+</section>
+
+<section id="flow">
+  <div class="section-label">Alur Kerja</div>
+  <div class="section-title">Dari Penerimaan ke Pengiriman</div>
+  <div class="section-sub">Setiap langkah terotomasi dan tercatat — tidak ada celah yang terlewat.</div>
+  <div class="flow-box">
+    <div class="flow-steps">
+      <div class="flow-step"><div class="fs-icon fi1">📥</div><h4>Inbound GR</h4><p>Barang tiba</p></div>
+      <div class="flow-step"><div class="fs-icon fi2">📍</div><h4>Putaway</h4><p>Masuk ke rak</p></div>
+      <div class="flow-step"><div class="fs-icon fi3">📊</div><h4>Stock Movement</h4><p>Mutasi dicatat</p></div>
+      <div class="flow-step"><div class="fs-icon fi4">🚚</div><h4>Outbound DO</h4><p>Picking & packing</p></div>
+      <div class="flow-step"><div class="fs-icon fi5">🛡️</div><h4>Audit Log</h4><p>Trail tersimpan</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="api">
+  <div class="section-label">REST API</div>
+  <div class="section-title">12+ Endpoints Siap Pakai</div>
+  <div class="section-sub">Base URL: <code style="color:#818cf8">https://api.abl-wms.id/v1</code> &nbsp;·&nbsp; Auth: Bearer JWT</div>
+  <table class="api-table">
+    <thead><tr><th>Endpoint</th><th>Deskripsi</th></tr></thead>
+    <tbody>
+      <tr><td><span class="method get">GET</span>/items</td><td>List semua SKU aktif</td></tr>
+      <tr><td><span class="method post">POST</span>/items</td><td>Tambah SKU baru ke Notion</td></tr>
+      <tr><td><span class="method get">GET</span>/locations</td><td>List rak + utilisasi real-time</td></tr>
+      <tr><td><span class="method patch">PATCH</span>/locations/:kode/stock</td><td>Update jumlah terisi + auto-status</td></tr>
+      <tr><td><span class="method post">POST</span>/inbound</td><td>Buat GR baru (barang masuk)</td></tr>
+      <tr><td><span class="method patch">PATCH</span>/inbound/:no_gr/status</td><td>Advance status GR → auto Stock Movement</td></tr>
+      <tr><td><span class="method get">GET</span>/movements/summary</td><td>Ringkasan stok per SKU</td></tr>
+      <tr><td><span class="method post">POST</span>/outbound</td><td>Buat DO baru → AI Triage Agent aktif</td></tr>
+      <tr><td><span class="method patch">PATCH</span>/outbound/:no_do/status</td><td>Advance pipeline DO</td></tr>
+      <tr><td><span class="method get">GET</span>/outbound/:no_do/picking-list</td><td>Picking list + barcode URL</td></tr>
+      <tr><td><span class="method get">GET</span>/audit</td><td>Trail perubahan dengan filter</td></tr>
+      <tr><td><span class="method patch">PATCH</span>/audit/:id/verify</td><td>Verifikasi entry oleh supervisor</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="agent">
+  <div class="section-label">AI Agent</div>
+  <div class="section-title">Triage Otomatis 24/7</div>
+  <div class="section-sub">Agent AI yang berjalan di Notion — aktif otomatis setiap ada DO baru atau perubahan status.</div>
+  <div class="agent-card">
+    <div>
+      <div class="agent-icon">⏰</div>
+      <h3>ABL DO Triage Agent</h3>
+      <p>Setiap DO baru langsung dicek stoknya, divalidasi itemnya, dan diberi komentar triage. Selisih picking terdeteksi otomatis sebelum barang naik ke truk.</p>
+      <a class="btn-primary" style="width:fit-content" href="#">Lihat di Notion ↗</a>
+    </div>
+    <div class="triggers">
+      <div class="trigger"><div class="tdot" style="background:#22c55e"></div><div><strong>DO Baru Dibuat</strong><p>Cek stok otomatis · validasi item · komentar ✅ / ⚠️ / ❌</p></div></div>
+      <div class="trigger"><div class="tdot" style="background:#6366f1"></div><div><strong>Status → PICKING</strong><p>Ingatkan operator isi Qty Picked setelah selesai</p></div></div>
+      <div class="trigger"><div class="tdot" style="background:#f97316"></div><div><strong>Status → PACKING</strong><p>Deteksi selisih picking · alert supervisor jika ada gap</p></div></div>
+      <div class="trigger"><div class="tdot" style="background:#a855f7"></div><div><strong>Status → DELIVERED</strong><p>Konfirmasi selesai + tulis Audit Log otomatis</p></div></div>
+      <div class="trigger"><div class="tdot" style="background:#ef4444"></div><div><strong>Status → CANCELLED</strong><p>Alert pembatalan · catat ke Audit Log</p></div></div>
+    </div>
+  </div>
+</section>
+
+<div class="cta">
+  <h2>Siap Operasional<br><span style="color:#818cf8">Hari Ini</span></h2>
+  <p>6 database Notion sudah aktif — tinggal push kode dan mulai operasi.</p>
+  <div class="hero-actions">
+    <a class="btn-primary" href="https://github.com/dickyginanjar0-spec/ABL----WMS">🐙 GitHub Repo</a>
+    <a class="btn-secondary" href="#modules">📖 Dokumentasi</a>
+  </div>
+</div>
+
+<footer>
+  <p>© 2026 ABL Logistics · Customer: KALBE · Powered by Notion + GitHub</p>
+  <div class="footer-links">
+    <a href="#modules">Modules</a>
+    <a href="#api">API</a>
+    <a href="#agent">Agent</a>
+  </div>
+</footer>
+
+</body>
+</html>
