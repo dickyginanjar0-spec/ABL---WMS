@@ -1,2 +1,2 @@
 # ABL---WMS
-Warehouse Management System - Real Time - Multi Customer - Sesuai Kebutuhan Klien
+Warehouse Management System - Real Time - Multi Customer - Dapat Menyesuaikan Kebutuhan Klien
