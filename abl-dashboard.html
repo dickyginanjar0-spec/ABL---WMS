@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ABL Control Tower — Kalbe</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; }
+​
+  .topbar { background: #1a1d27; border-bottom: 1px solid #2d3148; padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .logo { width: 32px; height: 32px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .brand { font-size: 15px; font-weight: 700; color: #fff; }
+  .brand span { color: #818cf8; }
+  .badge { background: #1e293b; border: 1px solid #334155; border-radius: 20px; padding: 4px 12px; font-size: 11px; color: #94a3b8; }
+  .live-dot { width: 7px; height: 7px; background: #22c55e; border-radius: 50%; display: inline-block; margin-right: 5px; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .topbar-right { display: flex; align-items: center; gap: 10px; font-size: 12px; color: #64748b; }
+  .time { font-variant-numeric: tabular-nums; color: #94a3b8; }
+​
+  .container { padding: 24px 28px; display: flex; flex-direction: column; gap: 20px; }
+​
+  /* KPI Row */
+  .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+  .kpi { background: #1a1d27; border: 1px solid #2d3148; border-radius: 12px; padding: 18px 20px; position: relative; overflow: hidden; }
+  .kpi::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 12px 12px 0 0; }
+  .kpi.green::before { background: #22c55e; }
+  .kpi.blue::before { background: #6366f1; }
+  .kpi.orange::before { background: #f97316; }
+  .kpi.red::before { background: #ef4444; }
+  .kpi.purple::before { background: #a855f7; }
+  .kpi-label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 8px; }
+  .kpi-value { font-size: 28px; font-weight: 800; color: #fff; line-height: 1; }
+  .kpi-sub { font-size: 11px; color: #64748b; margin-top: 5px; }
+  .kpi-icon { position: absolute; right: 16px; top: 18px; font-size: 22px; opacity: .25; }
+​
+  /* Main grid */
+  .main-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .wide { grid-column: span 2; }
+​
+  .card { background: #1a1d27; border: 1px solid #2d3148; border-radius: 12px; padding: 20px; }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .card-title { font-size: 13px; font-weight: 600; color: #e2e8f0; display: flex; align-items: center; gap: 7px; }
+  .card-title .icon { font-size: 15px; }
+  .card-meta { font-size: 11px; color: #475569; }
+​
+  /* DO Pipeline */
+  .pipeline { display: flex; flex-direction: column; gap: 8px; }
+  .pipe-row { display: flex; align-items: center; gap: 10px; }
+  .pipe-label { font-size: 11px; color: #94a3b8; width: 110px; flex-shrink: 0; }
+  .pipe-bar-bg { flex: 1; background: #1e293b; border-radius: 4px; height: 8px; overflow: hidden; }
+  .pipe-bar { height: 100%; border-radius: 4px; transition: width .6s ease; }
+  .pipe-count { font-size: 11px; color: #64748b; width: 20px; text-align: right; }
+  .pipe-todo .pipe-bar { background: #475569; }
+  .pipe-active .pipe-bar { background: #6366f1; }
+  .pipe-done .pipe-bar { background: #22c55e; }
+  .pipe-cancel .pipe-bar { background: #ef4444; }
+​
+  /* Location grid */
+  .loc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .loc-card { background: #0f1117; border: 1px solid #2d3148; border-radius: 8px; padding: 10px 12px; }
+  .loc-code { font-size: 12px; font-weight: 700; color: #e2e8f0; margin-bottom: 3px; }
+  .loc-product { font-size: 10px; color: #64748b; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .loc-bar-bg { background: #1e293b; border-radius: 3px; height: 5px; margin-bottom: 5px; overflow: hidden; }
+  .loc-bar { height: 100%; border-radius: 3px; }
+  .loc-bar.green { background: #22c55e; }
+  .loc-bar.yellow { background: #eab308; }
+  .loc-bar.red { background: #ef4444; }
+  .loc-stats { display: flex; justify-content: space-between; font-size: 10px; color: #475569; }
+  .status-chip { display: inline-block; padding: 2px 7px; border-radius: 20px; font-size: 9px; font-weight: 600; letter-spacing: .3px; text-transform: uppercase; }
+  .chip-avail { background: #14532d; color: #86efac; }
+  .chip-occ { background: #713f12; color: #fde68a; }
+  .chip-full { background: #7f1d1d; color: #fca5a5; }
+  .chip-res { background: #1e3a5f; color: #93c5fd; }
+​
+  /* Movement feed */
+  .feed { display: flex; flex-direction: column; gap: 0; }
+  .feed-item { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid #1e293b; }
+  .feed-item:last-child { border-bottom: none; }
+  .feed-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-in { background: #22c55e; }
+  .dot-out { background: #ef4444; }
+  .dot-adj { background: #eab308; }
+  .dot-put { background: #6366f1; }
+  .feed-info { flex: 1; }
+  .feed-title { font-size: 12px; color: #e2e8f0; }
+  .feed-sub { font-size: 10px; color: #475569; margin-top: 1px; }
+  .feed-qty { font-size: 12px; font-weight: 600; }
+  .qty-in { color: #22c55e; }
+  .qty-out { color: #ef4444; }
+  .feed-time { font-size: 10px; color: #334155; width: 54px; text-align: right; }
+​
+  /* Alert box */
+  .alerts { display: flex; flex-direction: column; gap: 7px; }
+  .alert { display: flex; align-items: flex-start; gap: 9px; background: #0f1117; border-radius: 8px; padding: 10px 12px; border-left: 3px solid; }
+  .alert.warn { border-color: #f97316; }
+  .alert.danger { border-color: #ef4444; }
+  .alert.info { border-color: #6366f1; }
+  .alert-icon { font-size: 14px; margin-top: 1px; }
+  .alert-text { font-size: 11px; color: #94a3b8; line-height: 1.5; }
+  .alert-text strong { color: #e2e8f0; display: block; margin-bottom: 1px; }
+​
+  /* GR table */
+  .gr-table { width: 100%; border-collapse: collapse; }
+  .gr-table th { font-size: 10px; color: #475569; text-transform: uppercase; letter-spacing: .5px; padding: 6px 0; text-align: left; border-bottom: 1px solid #1e293b; }
+  .gr-table td { font-size: 11px; color: #94a3b8; padding: 8px 0; border-bottom: 1px solid #131620; }
+  .gr-table tr:last-child td { border-bottom: none; }
+  .gr-table td:last-child { text-align: right; }
+  .status-pill { padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; }
+  .pill-done { background: #14532d; color: #86efac; }
+  .pill-putaway { background: #1e3a5f; color: #93c5fd; }
+  .pill-pending { background: #292524; color: #a8a29e; }
+  .pill-picking { background: #312e81; color: #c4b5fd; }
+  .pill-delivered { background: #14532d; color: #86efac; }
+​
+  /* Bottom row */
+  .bottom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+​
+  .footer { text-align: center; padding: 16px; font-size: 10px; color: #1e293b; }
+</style>
+</head>
+<body>
+​
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo">🏭</div>
+    <div class="brand">ABL <span>Control Tower</span></div>
+    <div class="badge">Customer: KALBE</div>
+  </div>
+  <div class="topbar-right">
+    <span><span class="live-dot"></span>Live</span>
+    <span class="time" id="clock">--:--:--</span>
+    <span>11 Sep 2026</span>
+  </div>
+</div>
+​
+<div class="container">
+​
+  <!-- KPI Row -->
+  <div class="kpi-row">
+    <div class="kpi green">
+      <div class="kpi-icon">📦</div>
+      <div class="kpi-label">Total SKU Aktif</div>
+      <div class="kpi-value">3</div>
+      <div class="kpi-sub">2 Divisi · KALBE</div>
+    </div>
+    <div class="kpi blue">
+      <div class="kpi-icon">📍</div>
+      <div class="kpi-label">Rak Tersedia</div>
+      <div class="kpi-value">1<small style="font-size:14px;color:#475569"> / 3</small></div>
+      <div class="kpi-sub">2 OCCUPIED · 0 FULL</div>
+    </div>
+    <div class="kpi orange">
+      <div class="kpi-icon">📥</div>
+      <div class="kpi-label">GR Pending</div>
+      <div class="kpi-value">1</div>
+      <div class="kpi-sub">1 Putaway in progress</div>
+    </div>
+    <div class="kpi red">
+      <div class="kpi-icon">🚚</div>
+      <div class="kpi-label">DO Aktif</div>
+      <div class="kpi-value">1</div>
+      <div class="kpi-sub">Selisih 3 PCS — cek!</div>
+    </div>
+    <div class="kpi purple">
+      <div class="kpi-icon">📊</div>
+      <div class="kpi-label">Movement Hari Ini</div>
+      <div class="kpi-value">3</div>
+      <div class="kpi-sub">+7.000 in · −500 out</div>
+    </div>
+  </div>
+​
+  <!-- Main Grid -->
+  <div class="main-grid">
+​
+    <!-- DO Pipeline -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">🚚</span> DO Pipeline</div>
+        <div class="card-meta">2 total</div>
+      </div>
+      <div class="pipeline">
+        <div class="pipe-row">
+          <div class="pipe-label">REQUEST</div>
+          <div class="pipe-bar-bg"><div class="pipe-bar pipe-todo" style="width:0%"></div></div>
+          <div class="pipe-count">0</div>
+        </div>
+        <div class="pipe-row">
+          <div class="pipe-label">CHECK STOCK</div>
+          <div class="pipe-bar-bg"><div class="pipe-bar pipe-todo" style="width:0%"></div></div>
+          <div class="pipe-count">0</div>
+        </div>
+        <div class="pipe-row">
+          <div class="pipe-label">PICKING</div>
+          <div class="pipe-bar-bg"><div class="pipe-bar pipe-active" style="width:50%"></div></div>
+          <div class="pipe-count">1</div>
+        </div>
+        <div class="pipe-row">
+          <div class="pipe-label">PACKING</div>
+          <div class="pipe-bar-bg"><div class="pipe-bar pipe-active" style="width:0%"></div></div>
+          <div class="pipe-count">0</div>
+        </div>
+        <div class="pipe-row">
+          <div class="pipe-label">READY TO SHIP</div>
+          <div class="pipe-bar-bg"><div class="pipe-bar pipe-active" style="width:0%"></div></div>
+          <div class="pipe-count">0</div>
+        </div>
+        <div class="pipe-row">
+          <div class="pipe-label">ON DELIVERY</div>
+          <div class="pipe-bar-bg"><div class="pipe-bar pipe-active" style="width:0%"></div></div>
+          <div class="pipe-count">0</div>
+        </div>
+        <div class="pipe-row">
+          <div class="pipe-label">DELIVERED</div>
+          <div class="pipe-bar-bg"><div class="pipe-bar pipe-done" style="width:50%"></div></div>
+          <div class="pipe-count">1</div>
+        </div>
+      </div>
+    </div>
+​
+    <!-- Alerts -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">⚠️</span> Alerts</div>
+        <div class="card-meta">3 aktif</div>
+      </div>
+      <div class="alerts">
+        <div class="alert danger">
+          <div class="alert-icon">🔴</div>
+          <div class="alert-text"><strong>Selisih Picking DO-000125</strong>Request 500 PCS · Picked 497 PCS · Selisih 3 PCS — konfirmasi sebelum loading</div>
+        </div>
+        <div class="alert warn">
+          <div class="alert-icon">🟠</div>
+          <div class="alert-text"><strong>GR-20260910-002 belum selesai</strong>CEREBROFORT PAYUNG ke O01-A01 masih status Putaway — operator: BUDI</div>
+        </div>
+        <div class="alert info">
+          <div class="alert-icon">🔵</div>
+          <div class="alert-text"><strong>Rak E02-A02 tersedia</strong>Kapasitas 6.000 PCS kosong — siap untuk penerimaan ENTRASOL berikutnya</div>
+        </div>
+      </div>
+    </div>
+​
+    <!-- Location Map -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">📍</span> Status Rak</div>
+        <div class="card-meta">3 rak terdaftar</div>
+      </div>
+      <div class="loc-grid">
+        <div class="loc-card">
+          <div class="loc-code">E02-A01</div>
+          <div class="loc-product">ENTRASOL</div>
+          <div class="loc-bar-bg"><div class="loc-bar yellow" style="width:83%"></div></div>
+          <div class="loc-stats"><span>5.000 / 6.000</span><span class="status-chip chip-occ">Occupied</span></div>
+        </div>
+        <div class="loc-card">
+          <div class="loc-code">E02-A02</div>
+          <div class="loc-product">ENTRASOL</div>
+          <div class="loc-bar-bg"><div class="loc-bar green" style="width:0%"></div></div>
+          <div class="loc-stats"><span>0 / 6.000</span><span class="status-chip chip-avail">Available</span></div>
+        </div>
+        <div class="loc-card">
+          <div class="loc-code">O01-A01</div>
+          <div class="loc-product">CEREBROFORT</div>
+          <div class="loc-bar-bg"><div class="loc-bar yellow" style="width:40%"></div></div>
+          <div class="loc-stats"><span>2.000 / 5.000</span><span class="status-chip chip-occ">Occupied</span></div>
+        </div>
+      </div>
+    </div>
+​
+  </div>
+​
+  <!-- Bottom Grid -->
+  <div class="bottom-grid">
+​
+    <!-- GR Table -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">📥</span> Inbound GR Terkini</div>
+        <div class="card-meta">2 GR hari ini</div>
+      </div>
+      <table class="gr-table">
+        <thead>
+          <tr>
+            <th>No GR</th>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Operator</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color:#e2e8f0">GR-20260910-001</td>
+            <td>ENTRASOL MUG</td>
+            <td>5.000 pcs</td>
+            <td>ANDI</td>
+            <td><span class="status-pill pill-done">Done</span></td>
+          </tr>
+          <tr>
+            <td style="color:#e2e8f0">GR-20260910-002</td>
+            <td>CEREBROFORT PAYUNG</td>
+            <td>2.000 pcs</td>
+            <td>BUDI</td>
+            <td><span class="status-pill pill-putaway">Putaway</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+​
+    <!-- Movement Feed -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">📊</span> Stock Movement Feed</div>
+        <div class="card-meta">3 movement hari ini</div>
+      </div>
+      <div class="feed">
+        <div class="feed-item">
+          <div class="feed-dot dot-out"></div>
+          <div class="feed-info">
+            <div class="feed-title">SM-20260911-001 · OUTBOUND</div>
+            <div class="feed-sub">ENTRASOL MUG · E02-A01 · Ref: DO-000125</div>
+          </div>
+          <div class="feed-qty qty-out">−500</div>
+          <div class="feed-time">07:30</div>
+        </div>
+        <div class="feed-item">
+          <div class="feed-dot dot-in"></div>
+          <div class="feed-info">
+            <div class="feed-title">SM-20260910-002 · INBOUND</div>
+            <div class="feed-sub">CEREBROFORT PAYUNG · O01-A01 · Ref: GR-002</div>
+          </div>
+          <div class="feed-qty qty-in">+2.000</div>
+          <div class="feed-time">Kemarin</div>
+        </div>
+        <div class="feed-item">
+          <div class="feed-dot dot-in"></div>
+          <div class="feed-info">
+            <div class="feed-title">SM-20260910-001 · INBOUND</div>
+            <div class="feed-sub">ENTRASOL MUG · E02-A01 · Ref: GR-001</div>
+          </div>
+          <div class="feed-qty qty-in">+5.000</div>
+          <div class="feed-time">Kemarin</div>
+        </div>
+      </div>
+    </div>
+​
+  </div>
+​
+</div>
+​
+<div class="footer">ABL Warehouse Management System · Customer: KALBE · Data disinkronisasi dari Notion</div>
+​
+<script>
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').textContent = now.toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:'Asia/Jakarta'});
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+</script>
+​
+</body>
+</html>
